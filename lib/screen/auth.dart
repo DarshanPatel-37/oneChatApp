@@ -86,12 +86,13 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                margin: const EdgeInsets.only(
-                    left: 20, right: 20, bottom: 20, top: 30),
-                width: 200,
-                child: Image.asset('assets/images/chat.png'),
-              ),
+              if (_isLogin)
+                Container(
+                  margin: const EdgeInsets.only(
+                      left: 20, right: 20, bottom: 20, top: 30),
+                  width: 200,
+                  child: Image.asset('assets/images/chat.png'),
+                ),
               Card(
                 margin: const EdgeInsets.all(20),
                 child: SingleChildScrollView(
