@@ -1,5 +1,6 @@
 import 'package:chat_app/screen/user_detail_page.dart';
 import 'package:chat_app/widgets/show_image.dart';
+import 'package:chat_app/widgets/show_video.dart';
 import 'package:flutter/material.dart';
 
 // A MessageBubble for showing a single chat message on the ChatScreen.
@@ -203,6 +204,40 @@ class MessageBubble extends StatelessWidget {
                             fit: BoxFit.cover,
                           )),
                     ),
+                  if (type == "mp4")
+                    InkWell(
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => VideoPreview(
+                                videoFile: message,
+                              ),
+                            ),
+                          );
+                        },
+                        child: const Row(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(
+                                left: 13,
+                                right: 2,
+                              ),
+                              child: Text(
+                                "play video",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                right: 13,
+                              ),
+                              child: Icon(Icons.play_arrow),
+                            )
+                          ],
+                        )),
                 ],
               ),
             ],

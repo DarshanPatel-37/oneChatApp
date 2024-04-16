@@ -5,11 +5,10 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-// import 'package:firebase_storage/firebase_storage.dart';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-// import 'package:flutter/widgets.dart';
-// import 'package:image_picker/image_picker.dart';
+
 // import 'package:video_player/video_player.dart';
 
 class NewMessages extends StatefulWidget {
@@ -20,43 +19,9 @@ class NewMessages extends StatefulWidget {
 }
 
 class _NewMessagesState extends State<NewMessages> {
-  // XFile? videoFile;
+  XFile? videoFile;
   final _newMessage = TextEditingController();
   // VideoPlayerController? _videoController;
-
-  @override
-  void dispose() {
-    _newMessage.dispose();
-    // _videoController?.dispose();
-    super.dispose();
-  }
-
-  // void pickVideo() async {
-  //   final picker = ImagePicker();
-
-  //   try {
-  //     videoFile = await picker.pickVideo(source: ImageSource.gallery);
-
-  //     // upload video
-  //     // Function to upload file to Firebase Storage
-  //     final user = FirebaseAuth.instance.currentUser!;
-  //     final ref =
-  //         FirebaseStorage.instance.ref().child('videos/${user.uid}.mp4}');
-  //     await ref.putFile(File(videoFile!.path));
-  //     final videoUploaded = await ref.getDownloadURL();
-  //     print('---------------------------before------------------------');
-  //     await FirebaseFirestore.instance
-  //         .collection('users')
-  //         .doc(user.uid)
-  //         .update({
-  //       'fileUrl': videoUploaded,
-  //     });
-  //     print('---------------------------after----------------------------');
-  //   } on FirebaseAuthException catch (error) {
-  //     print('Error uploading file: $error');
-  //   }
-  // }
-
   // void _initializeVideo() {
   //   _videoController = VideoPlayerController.file(File(videoFile!.path))
   //     ..initialize().then((value) {
@@ -79,6 +44,51 @@ class _NewMessagesState extends State<NewMessages> {
   //     return const CircularProgressIndicator();
   //   }
   // }
+
+  @override
+  void dispose() {
+    _newMessage.dispose();
+    // _videoController?.dispose();
+    super.dispose();
+  }
+
+  void pickVideo() async {
+    Navigator.pop(context);
+    final picker = ImagePicker();
+
+    try {
+      videoFile = await picker.pickVideo(
+        source: ImageSource.gallery,
+      );
+
+      // upload video
+      // Function to upload file to Firebase Storage
+      if (videoFile == null) {
+        return;
+      }
+      final ref =
+          FirebaseStorage.instance.ref().child('videos/${UniqueKey()}.mp4}');
+      await ref.putFile(File(videoFile!.path));
+      final videoUploaded = await ref.getDownloadURL();
+      print('---------------------------before------------------------');
+      final user3 = FirebaseAuth.instance.currentUser!;
+      final userData = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user3.uid)
+          .get();
+      FirebaseFirestore.instance.collection('chat').add({
+        'type': "mp4",
+        'text': videoUploaded,
+        'createdAt': Timestamp.now(),
+        'userId': user3.uid,
+        'username': userData.data()!['userName'],
+        'userImage': userData.data()!['image_url'],
+      });
+      print('---------------------------after----------------------------');
+    } on FirebaseAuthException catch (error) {
+      print('Error uploading file: $error');
+    }
+  }
 
   void submitMessage() async {
     final enterMessage = _newMessage.text;
@@ -109,6 +119,7 @@ class _NewMessagesState extends State<NewMessages> {
 // Image picker
   File? _SelectedImage;
   void _pickImage() async {
+    Navigator.pop(context);
     final pickedImage = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 50,
@@ -168,10 +179,32 @@ class _NewMessagesState extends State<NewMessages> {
                 labelText: "send a message...",
                 suffixIcon: IconButton(
                   icon: Icon(
-                    Icons.camera_alt,
+                    Icons.attach_file,
                     color: Theme.of(context).colorScheme.primaryContainer,
                   ), // Replace with your desired document icon
-                  onPressed: _pickImage,
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Select Option"),
+                          content: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.image),
+                                onPressed: _pickImage,
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.video_library),
+                                onPressed: pickVideo,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
                 ),
               ),
             ),
