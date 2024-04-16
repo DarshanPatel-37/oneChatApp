@@ -1,6 +1,6 @@
 #ChatAPP
 - Flutter and FireStorage Project, Develop an CHAT Application.
-
+- NOTE: Switch to Master branch.
 #Getting Started
 Key points covered:
 
