@@ -4,13 +4,13 @@
 #Getting Started
 Key points covered:
 
-|Created a real time chat application with support for messages, documents and video uploading.
+1.Created a real time chat application with support for messages, documents and video uploading.
 
-||The application include authentication signin and signup.
+2.The application include authentication signin and signup.
 
-|||Its 1-1 chat application which should be open to all individuals who signing up.
+3.Its 1-1 chat application which should be open to all individuals who signing up.
 
-||| the chat room is a list with their detailed profile details when clicked on their display picture icon
+4.the chat room is a list with their detailed profile details when clicked on their display picture icon
 
 #create account.....................................................................................
 ![create acount](https://github.com/DarshanPatel-37/oneChatApp/assets/96777821/6fc1169b-0336-4335-98d9-309b0d1be193)
