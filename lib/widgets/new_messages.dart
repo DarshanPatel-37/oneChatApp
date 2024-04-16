@@ -1,10 +1,14 @@
 // import 'dart:io';
 
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 // import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
+// import 'package:flutter/widgets.dart';
 // import 'package:image_picker/image_picker.dart';
 // import 'package:video_player/video_player.dart';
 
@@ -93,12 +97,59 @@ class _NewMessagesState extends State<NewMessages> {
         .doc(user.uid)
         .get();
     FirebaseFirestore.instance.collection('chat').add({
+      'type': "text",
       'text': enterMessage,
       'createdAt': Timestamp.now(),
       'userId': user.uid,
       'username': userData.data()!['userName'],
       'userImage': userData.data()!['image_url'],
     });
+  }
+
+// Image picker
+  File? _SelectedImage;
+  void _pickImage() async {
+    final pickedImage = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 50,
+      maxWidth: 150,
+    );
+    if (pickedImage == null) {
+      return;
+    }
+    _SelectedImage = File(pickedImage.path);
+    if (_SelectedImage == null) return;
+    try {
+      final Reference storeRef = FirebaseStorage.instance
+          .ref()
+          .child('user_images')
+          .child('${UniqueKey()}.jpg');
+      await storeRef.putFile(_SelectedImage!);
+      final imageUploaded = await storeRef.getDownloadURL();
+      print(imageUploaded);
+      print('---------------------------before------------------------');
+      final user2 = FirebaseAuth.instance.currentUser!;
+      final userData = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user2.uid)
+          .get();
+      FirebaseFirestore.instance.collection('chat').add({
+        'type': "img",
+        'text': imageUploaded,
+        'createdAt': Timestamp.now(),
+        'userId': user2.uid,
+        'username': userData.data()!['userName'],
+        'userImage': userData.data()!['image_url'],
+      });
+      print('---------------------------after----------------------------');
+    } on FirebaseAuthException catch (error) {
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.code),
+        ),
+      );
+    }
   }
 
   @override
@@ -115,13 +166,13 @@ class _NewMessagesState extends State<NewMessages> {
               textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(
                 labelText: "send a message...",
-                // suffixIcon: IconButton(
-                //   icon: Icon(
-                //     Icons.attach_file,
-                //     color: Theme.of(context).colorScheme.primary,
-                //   ), // Replace with your desired document icon
-                //    onPressed: pickVideo,
-                // ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    Icons.camera_alt,
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                  ), // Replace with your desired document icon
+                  onPressed: _pickImage,
+                ),
               ),
             ),
           ),
